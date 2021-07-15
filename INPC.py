@@ -1,10 +1,12 @@
-# Programa para calcular mostrar los valores del INPC de un Periodo
+# Programa para mostrar los valores del INPC de un Periodo
 # y Calcular la inflacion durante ese periodo. 
 
 # Imports del Programa
-######################
+#######################
+# Para importar el token de Banxico
+import api_key
 # Para sacar las enviroment variables
-import os 
+# import os # Uncomment si se usa 
 # Para hacer que los meses se muestren en Español
 import locale
 # Para enviar HTTP requests usando Python
@@ -22,14 +24,14 @@ from IPython.display import display, HTML
 locale.setlocale(locale.LC_ALL,'es_ES.UTF-8')
 
 # Token de Consulta INEGI
+token = api_key.token_inegi
+# alternativa si quieres poner el token directamente en un solo archivo
+# token = "token_aqui"
+# alternativa si quieres poner el token en las OS variables
+# token = os.environ.get("token_inegi")
 
-# alternativa si quieres poner el token directamente en el codigo:
-    #token = "tu_token_aqui"
-    #comentar la linea de abajo si usas el codigo de arriba
-token = os.environ.get("token_inegi")
-
-# Serie de Consulta: INPC Mensual
-inpc = "628194"
+# Serie de Consulta: 
+inpc = "628194"  # INPC Mensual
 
 # Consulta de Ultimo dato o serie completa:
     # - Serie completa = "false"
@@ -44,6 +46,8 @@ def serie_inegi():
     # Se le tienen que pasar Headers
     # Se pasa como un Request con metodo Get
     # Se le solicita el codigo de respuesta al servidor. 
+    # status global para unittest
+    global status
     response = requests.get(url) 
     status = response.status_code
     
@@ -54,7 +58,7 @@ def serie_inegi():
         
         # Pasamos las llaves en el Json para crear el dataframe. 
         data = content["Series"][0]["OBSERVATIONS"]
-        
+
         # Hacemos que la variable df sea global para poder accesarla despues
         # Creamos con la serie un dataframe df
         # Eliminiamos las columnas que no necesitamos
@@ -85,48 +89,37 @@ def serie_inegi():
 # Llamamos la funcion
 consulta_inpc = serie_inegi()
 
+if __name__ == '__main__':
 
-# Obteniendo fechas para filtrar tabla del INPC
-#################################################
-print("\n Calculadora de Inflacion V1. 17-Feb-21 \n")
+    # Obteniendo fechas para filtrar tabla del INPC
+    #################################################
+    print("\n Calculadora de Inflacion V1. 17-Feb-21 \n")
+    print("Ultimo Valor reportado por el INEGI: \n")
+    print((df.iloc[[0],[0,1,2]]).to_string(index=False))
+    print("\n Fecha Inicial de Cálculo yyyy-mm: ")
+    start_date = input()
+    print("Fecha Final de Cálculo yyyy-mm: ")
+    end_date = input()
 
-print("Ultimo Valor reportado por el INEGI: \n")
+    # Mostrando la informacion Filtrada
+    ###############################################
+    # Creamos un nuevo DataFrame solo con la info que nos interesa ver
+    df2 = df.loc[end_date:start_date]
 
-print((df.iloc[[0],[0,1,2]]).to_string(index=False))
+    # Calculamos la inflacion del Periodo
+    start_value = df2['INPC'].values[-1]
+    end_value   = df2['INPC'].values[0]
+    inflacion = ((end_value/start_value)-1)*100
+    inflacion_redondeada = round(inflacion,2)
+    factor_ajuste = end_value/start_value
+    factor_ajuste_truncado = round(factor_ajuste,4)
 
-print("\n Fecha Inicial de Cálculo yyyy-mm: ")
+    # Mostramos la informacion sin el indice
+    print("\n")
+    print(df2.to_string(index=False))
 
-start_date = input()
-
-print("Fecha Final de Cálculo yyyy-mm: ")
-
-end_date = input()
-
-# Mostrando la informacion Filtrada
-###############################################
-# Creamos un nuevo DataFrame solo con la info que nos interesa ver
-df2 = df.loc[end_date:start_date]
-
-# Calculamos la inflacion del Periodo
-start_value = df2['INPC'].values[-1]
-end_value   = df2['INPC'].values[0]
-
-inflacion = ((end_value/start_value)-1)*100
-inflacion_redondeada = round(inflacion,2)
-
-factor_ajuste = end_value/start_value
-factor_ajuste_truncado = round(factor_ajuste,4)
-
-
-# Mostramos la informacion sin el indice
-print("\n")
-print(df2.to_string(index=False))
-
-# Mostramos la inflacion del periodo
-print("\nEl INPC Inicial del periodo es: "+str(start_value))
-
-print("El INPC Final del periodo es:: "+str(end_value))
-
-print("El Factor de ajuste es: "+str(factor_ajuste_truncado))
-
-print("La inflacion del periodo fue de: "+str(inflacion_redondeada)+"%\n")
+    # Mostramos la inflacion del periodo
+    print("\nEl INPC Inicial del periodo es: "+str(start_value))
+    print("El INPC Final del periodo es:: "+str(end_value))
+    print("El Factor de ajuste es: "+str(factor_ajuste_truncado))
+    print("La inflacion del periodo fue de: "+str(inflacion_redondeada)+"%\n")
