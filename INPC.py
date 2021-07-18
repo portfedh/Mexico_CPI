@@ -17,6 +17,8 @@ import pandas as pd
 import numpy as np
 # Para mostrar el dataframe sin el indice
 from IPython.display import display, HTML
+# Para verificar que los inputs de fechas esten bien
+from dateutil import parser
 
 # Descargando la base de datos de INEGI
 #######################################
@@ -95,11 +97,116 @@ if __name__ == '__main__':
     #################################################
     print("\n Calculadora de Inflacion V1. 17-Feb-21 \n")
     print("Ultimo Valor reportado por el INEGI: \n")
-    print((df.iloc[[0],[0,1,2]]).to_string(index=False))
+    ultimo_inpc = (df.iloc[[0]]).to_string(index=False)
+    print(ultimo_inpc)
+    #Para pruebas de inputs
+    fecha_ultimo_inpc = (df.index[0])
+
+    # Obteniendo la fecha inicial para filtrar tabla del INPC
+    #########################################################
     print("\n Fecha Inicial de Cálculo yyyy-mm: ")
     start_date = input()
+
+    # Prueba para ver que el input sea una fecha.
+    try:
+        isdate_test = bool(parser.parse(start_date))
+    except:
+        isdate_test = False
+    while isdate_test == False:
+        print("\n ***** Fecha no valida, Intenta de nuevo *****")
+        print("\n\n Fecha Inicial de Cálculo yyyy-mm: ")
+        start_date = input()
+        try:
+            isdate_test = bool(parser.parse(start_date))
+        except:
+            isdate_test = False
+
+    # Prueba para ver si la fecha proporcionada es posterior al inicio de la serie de INPC
+    try:
+        start_date = parser.parse(start_date)
+        series_start_date = pd.to_datetime("1969-01-01")
+        start_date_test = bool(start_date >= series_start_date)
+    except:
+        start_date_test = False
+
+    while start_date_test == False:
+        print("\n ***** Fecha no valida. El INPC inicia en 1969-01-01 *****")
+        print("\n ***** Intenta de nuevo *****")
+        print("\n Fecha Inicial de Cálculo yyyy-mm: ")
+        start_date = input()
+        start_date = parser.parse(start_date)
+        try:
+            start_date_test = bool(start_date >= series_start_date)
+        except:
+            start_date_test = False
+
+    # Prueba para ver si la fecha proporcionada es menor al ultimo valor del INPC
+    try: 
+        last_date_test = bool(start_date <= fecha_ultimo_inpc)
+    except:
+        last_date_test = False
+    while last_date_test == False:
+        print("\n ***** Fecha no valida. La fecha elegida es despues del ultimo valor del INPC *****")
+        print("\n ***** Intenta de nuevo *****")
+        print("\n Fecha Inicial de Cálculo yyyy-mm: ")
+        start_date = input()
+        start_date = parser.parse(start_date)
+        try:
+            last_date_test = bool(start_date <= fecha_ultimo_inpc)
+        except:
+            last_date_test = False
+
+    # Obteniendo la fecha final para filtrar tabla del INPC
+    #########################################################
     print("Fecha Final de Cálculo yyyy-mm: ")
     end_date = input()
+
+    # Prueba para ver que el input sea una fecha.
+    try:
+        isdate_test = bool(parser.parse(end_date))
+    except:
+        isdate_test = False
+    while isdate_test == False:
+        print("\n ***** Fecha no valida, Intenta de nuevo *****")
+        print("\n\n Fecha Final de Cálculo yyyy-mm: ")
+        end_date = input()
+        try:
+            isdate_test = bool(parser.parse(end_date))
+        except:
+            isdate_test = False
+            
+    # Prueba para ver que la fecha final no sea anterior a la fecha inicial
+    try:
+        end_date = parser.parse(end_date)
+        end_date_test = bool(end_date > start_date)
+    except:
+        end_date_test = False
+    while end_date_test == False:
+        print("\n ***** Fecha no valida. La fecha final no puede ser anterior a la fecha inicial *****")
+        print("\n ***** Intenta de nuevo *****")
+        print("\n Fecha Final de Cálculo yyyy-mm: ")
+        end_date = input()
+        end_date = parser.parse(end_date)
+        try:
+            end_date_test = bool(end_date > start_date)
+        except:
+            end_date_test = False
+
+    # Prueba par ver que la fecha elegida sea menor al ultimo INPC
+    try: 
+        last_date_test = bool(end_date <= fecha_ultimo_inpc)
+    except:
+        last_date_test = False
+    while last_date_test == False:
+        print("\n ***** Fecha no valida. La fecha elegida es despues del ultimo valor del INPC *****")
+        print("\n ***** Intenta de nuevo *****")
+        print("\n Fecha Final de Cálculo yyyy-mm: ")
+        end_date = input()
+        end_date = parser.parse(end_date)
+        try:
+            last_date_test = bool(end_date <= fecha_ultimo_inpc)
+        except:
+            last_date_test = False
 
     # Mostrando la informacion Filtrada
     ###############################################
