@@ -1,29 +1,65 @@
 
-### Mexico Inflation Calculator
+# Mexico Inflation Calculator
 
-A simple program to determine inflation between two periods.
 
-When run, it will automatically display the last value in Mexican Consumer Price Index (INPC) and will prompt for two dates from the user. 
+### What it does
 
-The program will then retreive the monthly index values during the period and calculate the inflation between the two dates.
+A simple script used to determine inflation in Mexico between two periods.
 
-Output will display the inflation for the period, as well as the Index values of the period.
+The program connects through an API to the National Institute of Statistics and Geography in Mexico (INEGI) and retrieves the relevant monthly Consumer Price Index (INPC) values. 
 
-### Use cases
-The progam is usefull to quickly adjust rent prices, a stock's cost basis or any asset value that is periodically adjusted for inflation. 
+The user will input an initial and final date. 
 
-To run the program, a free API token is required from INEGI (National Statistics and Geography Institute) and can be obtained here:
+The script will then output the inflation for the period along with the INPC values for each month.
+
+
+### How to Install
+
+To use this script, you must have previously installed:
+	- Python 3
+	- IPython
+	- Pandas
+	- Numpy
+	- Requests
+
+You will also need a (free) API token from INEGI, which can be obtained here:
 [INEGI](https://www.inegi.org.mx/servicios/api_indicadores_1.0.html#token)
 
+Once you have the API token, paste it in the file named: ```api_key_blank.py```
 
-### Instalation
-Simply run the python code from a terminal. 
+Rename the file to ```api_key.py```
+
+You can then run the python script from terminal. 
+
+If you use this information frequently, I recommend adding an alias to the script path to make it simpler. 
+
+
+### How to Use
+
+When run, it will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user. 
+
+The program will then retrieve the monthly index values during the period and calculate the inflation between the two dates.
+
+Output will display the inflation for the period, as well as the Index values of the period
+
+<img src="https://www.bite-size.mx/inpc_example.gif" alt="INPC_example" width="600" height="392">
+
+
+### Use cases
+
+The script is useful for accountants or administrative/financial professionals. 
+It can help to quicky determine adjustments for:
+	Rent prices
+	A stock's cost basis
+	A salary increase to maintain purchasing power
+	Any asset value that is periodically adjusted for inflation. 
 
 
 ### Contributing
-If you can help making this a simple executable file for windows and mac, so non programers can use it, it would be much appreciated. 
+If you can help making this a simple executable file for windows and mac, so non-programmers can use it, it would be much appreciated. 
 
-Any GUI development would also be very helpful. 
+I apologize in advance for over commenting. I’m still a beginner programing and need it to remember what everything does. It also helps me see how well I understand each part of my code. 
+
 
 ### Credits
 Pablo Cruz Lemini
