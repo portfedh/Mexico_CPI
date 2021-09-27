@@ -3,49 +3,42 @@
 
 # Imports del Programa
 #######################
-# Para importar el token de Banxico
 import api_key
-# Para sacar las enviroment variables
-# import os # Uncomment si se usa
-# Para hacer que los meses se muestren en Español
+# Para importar el token de Banxico
 import locale
-# Para enviar HTTP requests usando Python
+# Para sacar las enviroment variables
 import requests
-# Para transformar los datos en un DataFrame
+# Para enviar HTTP requests usando Python
 import pandas as pd
+# Para transformar los datos en un DataFrame
 
 # Descargando la base de datos de INEGI
 #######################################
+
 # Mostrar los meses en Español
 locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
 # Token de Consulta INEGI
 token = api_key.token_inegi
-# alternativa si quieres poner el token directamente en un solo archivo
-# token = "token_aqui"
-# alternativa si quieres poner el token en las OS variables
-# token = os.environ.get("token_inegi")
 
 # Serie de Consulta:
 inpc = "628194"  # INPC Mensual
 
-# Consulta de Ultimo dato o serie completa:
-#     - Serie completa = "false"
-#     - Ultimo dato = "true"
 consulta = "false"
+# Consulta de ultimo dato o serie completa:
+#     Serie completa = "false"
+#     Ultimo dato = "true"
 
-
-# Funcion de Descarga:
+# Funcion de Descarga de Datos:
 def serie_inegi():
     # Al site de INEGI se le añaden los datos de consulta
     url = "https://www.inegi.org.mx/app/api/indicadores/"\
         + "desarrolladores/jsonxml/INDICATOR/"\
         + inpc+"/es/0700/"+consulta+"/BIE/2.0/"+token
 
-    # Se le tienen que pasar Headers
     # Se pasa como un Request con metodo Get
     # Se le solicita el codigo de respuesta al servidor.
-    # status global para unittest
+    # Status global para unittest
     global status
     response = requests.get(url)
     status = response.status_code
@@ -72,9 +65,11 @@ def serie_inegi():
         global df
         df = pd.DataFrame(data)
         df.drop(columns=['OBS_EXCEPTION',
-                         'OBS_STATUS', 'OBS_SOURCE',
-                         'OBS_NOTE', 'COBER_GEO'],
-                inplace=True)
+                         'OBS_STATUS',
+                         'OBS_SOURCE',
+                         'OBS_NOTE',
+                         'COBER_GEO'],
+                         inplace=True)
         df.columns = ['Fecha', 'INPC']
         df["INPC"] = df["INPC"].apply(lambda x: float(x))
         df["Fecha"] = pd.to_datetime(df["Fecha"], format="%Y/%m")
@@ -101,9 +96,9 @@ if __name__ == '__main__':
     print("Ultimo Valor reportado por el INEGI: \n")
     print((df.iloc[[0], [0, 1, 2]]).to_string(index=False))
     print("\n Fecha Inicial de Cálculo yyyy-mm: ")
-    start_date = input()
+    start_date = pd.to_datetime(input())
     print("Fecha Final de Cálculo yyyy-mm: ")
-    end_date = input()
+    end_date = pd.to_datetime(input())
 
     # Mostrando la informacion Filtrada
     ###############################################
