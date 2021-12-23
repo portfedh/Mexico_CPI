@@ -1,12 +1,12 @@
-# Programa para mostrar los valores del INPC de un Periodo
-# y Calcular la inflacion durante ese periodo.
+# Programa para mostrar los valores del INPC de un periodo
+# y calcular la inflacion durante ese periodo.
 
 # Imports del Programa
 #######################
 import api_key
-# Para importar el token de Banxico
+# Para importar el token de INEGI
 import locale
-# Para sacar las enviroment variables
+# Para mostrar las fechas en Español
 import requests
 # Para enviar HTTP requests usando Python
 import pandas as pd
@@ -14,81 +14,85 @@ import pandas as pd
 
 # Descargando la base de datos de INEGI
 #######################################
-
+locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
 # Mostrar los meses en Español
-locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-
-# Token de Consulta INEGI
 token = api_key.token_inegi
-
-# Serie de Consulta:
+# Token de Consulta INEGI
 inpc = "628194"  # INPC Mensual
-
+# Serie de Consulta:
 consulta = "false"
 # Consulta de ultimo dato o serie completa:
 #     Serie completa = "false"
 #     Ultimo dato = "true"
 
+
 # Funcion de Descarga de Datos:
+###############################
 def serie_inegi():
     # Al site de INEGI se le añaden los datos de consulta
-    url = "https://www.inegi.org.mx/app/api/indicadores/"\
-        + "desarrolladores/jsonxml/INDICATOR/"\
-        + inpc+"/es/0700/"+consulta+"/BIE/2.0/"+token
+    url = (
+        "https://www.inegi.org.mx/app/api/indicadores/"
+        + "desarrolladores/jsonxml/INDICATOR/"
+        + inpc
+        + "/es/0700/"
+        + consulta
+        + "/BIE/2.0/"
+        + token
+    )
 
-    # Se pasa como un Request con metodo Get
-    # Se le solicita el codigo de respuesta al servidor.
-    # Status global para unittest
     global status
+    # Status global para unitest
     response = requests.get(url)
+    # Se pasa como un request con metodo get
     status = response.status_code
+    # Se le solicita el codigo de respuesta al servidor.
 
-    # Si el estatus esta Ok armar el dataframe
     if status == 200:
-        # Guarda la respuesta en formato JSON en una variable
+        # Si el estatus esta Ok crear el dataframe
         content = response.json()
-
-        # Pasamos las llaves en el Json para crear el dataframe.
+        # Guarda la respuesta como una variable
         data = content["Series"][0]["OBSERVATIONS"]
-
-        # Hacemos que la variable df sea global para poder accesarla despues
-        # Creamos con la serie un dataframe df
-        # Eliminiamos las columnas que no necesitamos
-        # Renombramos las columnas a Fecha e INPC
-        # Volvemos los datos del INPC floats en vez de strings
-        # Volvemos las fechas a formato de fecha
-        # Creamos las columna de Año
-        # Creamos las columna de Mes en español
-        # Reordenamos las columnas
-        # Regresa el Dataframe
-        # Volvemos la fecha la columna indice
+        # Se filtra el json
+        # Se accesa el diccionario con los datos
         global df
+        # Hacemos que la variable df sea global para poder accesarla despues
         df = pd.DataFrame(data)
-        df.drop(columns=['OBS_EXCEPTION',
-                         'OBS_STATUS',
-                         'OBS_SOURCE',
-                         'OBS_NOTE',
-                         'COBER_GEO'],
-                         inplace=True)
-        df.columns = ['Fecha', 'INPC']
+        # Creamos un dataframe con la informacion
+        df.drop(columns=["OBS_EXCEPTION",
+                         "OBS_STATUS",
+                         "OBS_SOURCE",
+                         "OBS_NOTE",
+                         "COBER_GEO",
+                         ],
+                inplace=True,)
+        # Eliminiamos las columnas que no necesitamos
+        df.columns = ["Fecha", "INPC"]
+        # Renombramos las columnas a Fecha e INPC
         df["INPC"] = df["INPC"].apply(lambda x: float(x))
+        # Volvemos los datos del INPC floats en vez de strings
         df["Fecha"] = pd.to_datetime(df["Fecha"], format="%Y/%m")
-        df['Año'] = pd.DatetimeIndex(df['Fecha']).year
-        df['Mes'] = pd.DatetimeIndex(df['Fecha'])\
-            .month_name(locale='es_ES.UTF-8')
-        df = df.reindex(columns=['Fecha', 'Año', 'Mes', 'INPC'])
+        # Volvemos las fechas a formato de fecha
+        df["Año"] = pd.DatetimeIndex(df["Fecha"]).year
+        # Creamos las columna de Año
+        df["Mes"] = (pd.DatetimeIndex(df["Fecha"])
+                     .month_name(locale="es_ES.UTF-8"))
+        # Creamos las columna de Mes en español
+        df = df.reindex(columns=["Fecha", "Año", "Mes", "INPC"])
+        # Reordenamos las columnas
         df.set_index("Fecha", inplace=True)
+        # Volvemos la fecha la columna indice
         return df
-
-    # Si el estatus esta mal imprimir el Error en la consulta.
+        # Regresa el Dataframe
     else:
+        # Si el estatus esta mal imprimir el Error en la consulta.
         print(status)
 
 
-# Llamamos la funcion
+# Ejecutando la Solicitud de Descarga
+#####################################
 consulta_inpc = serie_inegi()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Obteniendo fechas para filtrar tabla del INPC
     #################################################
@@ -101,24 +105,30 @@ if __name__ == '__main__':
     end_date = pd.to_datetime(input())
 
     # Mostrando la informacion Filtrada
-    ###############################################
-    # Creamos un nuevo DataFrame solo con la info que nos interesa ver
+    ###################################
     df2 = df.loc[end_date:start_date]
+    # Creamos un nuevo DataFrame solo con la info que nos interesa ver
 
     # Calculamos la inflacion del Periodo
-    start_value = df2['INPC'].values[-1]
-    end_value = df2['INPC'].values[0]
-    inflacion = ((end_value/start_value)-1)*100
+    #####################################
+    start_value = df2["INPC"].values[-1]
+    end_value = df2["INPC"].values[0]
+    inflacion = ((end_value / start_value) - 1) * 100
     inflacion_redondeada = round(inflacion, 2)
-    factor_ajuste = end_value/start_value
+    factor_ajuste = end_value / start_value
     factor_ajuste_truncado = round(factor_ajuste, 4)
 
     # Mostramos la informacion sin el indice
+    ########################################
     print("\n")
     print(df2.to_string(index=False))
 
     # Mostramos la inflacion del periodo
-    print("\nEl INPC Inicial del periodo es: "+str(start_value))
-    print("El INPC Final del periodo es:: "+str(end_value))
-    print("El Factor de ajuste es: "+str(factor_ajuste_truncado))
-    print("La inflacion del periodo fue de: "+str(inflacion_redondeada)+"%\n")
+    ####################################
+    print("\nEl INPC Inicial del periodo es: " + str(start_value))
+    print("El INPC Final del periodo es:: " + str(end_value))
+    print("El Factor de ajuste es: " + str(factor_ajuste_truncado))
+    print(("La inflacion del periodo fue de: "
+           + str(inflacion_redondeada)
+           + "%\n"
+           ))

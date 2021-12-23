@@ -7,9 +7,11 @@ A simple script used to determine inflation in Mexico between two periods.
 
 The program connects through an API to the National Institute of Statistics and Geography in Mexico (INEGI) and retrieves the relevant monthly Consumer Price Index (INPC) values.
 
-The user will input an initial and final date.
+- The user will input an initial and final date.
 
-The script will then output the inflation for the period along with the INPC values for each month.
+- The script will then output the index values for each month.
+
+-  It will also calculate the inflation percentage for the period.
 
 ## How to Install
 
@@ -30,11 +32,9 @@ Rename the file to ```api_key.py```
 
 You can then run the python script from terminal.
 
-If you use this information frequently, I recommend adding an alias to the script path to make it simpler.
-
 ## How to Use
 
-When run, it will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user.
+When run, it will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user in the format: yyy-mm
 
 The program will then retrieve the monthly index values during the period and calculate the inflation between the two dates.
 
@@ -44,19 +44,18 @@ Output will display the inflation for the period, as well as the Index values of
 
 ## Use cases
 
-The script is useful for accountants or administrative/financial professionals.
+The script may be useful for accountants, administrative, financial professionals or anyone who needs to determine inflation over specific time periods. 
+
 It can help to quicky determine adjustments for:
 
-- Rent prices
-- A stock's cost basis
-- A salary increase to maintain purchasing power
-- Any asset value that is periodically adjusted for inflation
+- Rent prices.
+- A stock's inflation adjusted cost basis.
+- A salary increase to maintain purchasing power.
+- Any asset value that is periodically adjusted for inflation.
 
 ## Contributing
 
-If you can help making this a simple executable file for windows and mac, so non-programmers can use it, it would be much appreciated.
+Any help making the scripto into an executable file for windows and mac would be very helpful. 
 
-## Credits
+This would allow non-programmers to use it. 
 
-Pablo Cruz Lemini.
-February 2021
