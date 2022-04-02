@@ -5,13 +5,15 @@ import unittest
 import INPC
 import api_key
 
-# Cosas a evaluar
+# Tests
+#################
 #   1. Dataframe sin error
 #   2. Fechas de consulta en rango
 
+
 class TestINPC(unittest.TestCase):
     # Test Class that inherits from  unittest.testacse
-    # Gives access to testing capabilities. 
+    # Gives access to testing capabilities.
 
     # Test that api token is copied correctly
     def test_token(self):
@@ -25,17 +27,18 @@ class TestINPC(unittest.TestCase):
         test_serie = INPC.inpc
         self.assertEqual(serie, test_serie)
 
-   # Test that we are asking for all values, not latest value from API.
+    # Test that we are asking for all values, not latest value from API.
     def test_tipo_consulta(self):
-        consulta = "false" # Latest Value would be True, all values would be False
+        consulta = "false"  # Latest Value would be True, all values would be False
         test_consulta = INPC.consulta
         self.assertEqual(consulta, test_consulta)
 
-   # Test the http status code
+    # Test the http status code
     def test_status(self):
-        status = 200 
+        status = 200
         test_status = INPC.status
         self.assertEqual(test_status, status)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
