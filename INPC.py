@@ -1,5 +1,6 @@
 # Programa para mostrar los valores del INPC de un periodo
 # y calcular la inflacion durante ese periodo.
+# Autor: Pablo Cruz Lemini
 
 # Imports del Programa
 #######################
@@ -17,6 +18,9 @@ import pandas as pd
 locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
 # Mostrar los meses en Español
 token = api_key.token_inegi
+# token = open('api_key', 'r').read()
+# Alternative to try out
+
 # Token de Consulta INEGI
 inpc = "628194"  # INPC Mensual
 # Serie de Consulta:

@@ -15,7 +15,7 @@ The program connects through an API to the National Institute of Statistics and 
 
 ## How to Install
 
-To use this script, you must have previously installed:
+To use this script, you must have previously installed python 3 and the following python libraries:
 
 - Python 3
 - IPython
@@ -24,7 +24,7 @@ To use this script, you must have previously installed:
 - Requests
 
 You will also need a (free) API token from INEGI, which can be obtained here:
-[INEGI API KEY](https://www.inegi.org.mx/servicios/api_indicadores_1.0.html#token)
+[INEGI API KEY](http://en.www.inegi.org.mx/app/api/denue/v1/tokenVerify.aspx)
 
 Once you have the API token, paste it in the file named: ```api_key_blank.py```
 
@@ -34,7 +34,7 @@ You can then run the python script from terminal.
 
 ## How to Use
 
-When run, it will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user in the format: yyy-mm
+When running the script, the terminal will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user in the format: yyy-mm
 
 The program will then retrieve the monthly index values during the period and calculate the inflation between the two dates.
 
@@ -44,7 +44,7 @@ Output will display the inflation for the period, as well as the Index values of
 
 ## Use cases
 
-The script may be useful for accountants, administrative, financial professionals or anyone who needs to determine inflation over specific time periods. 
+The script may be useful for accountants, administrative, financial professionals or anyone who needs to determine inflation over specific time periods.
 
 It can help to quicky determine adjustments for:
 
