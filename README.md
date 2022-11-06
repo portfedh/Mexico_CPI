@@ -11,7 +11,7 @@ The program connects through an API to the National Institute of Statistics and 
 
 - The script will then output the index values for each month.
 
--  It will also calculate the inflation percentage for the period.
+- It will also calculate the inflation percentage for the period.
 
 ## How to Install
 
@@ -46,7 +46,7 @@ Output will display the inflation for the period, as well as the Index values of
 
 The script may be useful for accountants, administrative, financial professionals or anyone who needs to determine inflation over specific time periods.
 
-It can help to quicky determine adjustments for:
+It can help to quickly determine adjustments for:
 
 - Rent prices.
 - A stock's inflation adjusted cost basis.
@@ -55,7 +55,6 @@ It can help to quicky determine adjustments for:
 
 ## Contributing
 
-Any help making the scripto into an executable file for windows and mac would be very helpful. 
+Any help making the script into an executable file for windows and mac would be very helpful.
 
-This would allow non-programmers to use it. 
-
+This would allow non-programmers to use it.
