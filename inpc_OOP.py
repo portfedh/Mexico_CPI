@@ -23,16 +23,14 @@ class Inpc():
     + token)
 
     def __init__(self):
-        self.get_inpc_data()
-        self.print_last_value()
-        self.get_dates()
-        self.calculate_inflation()
-        self.print_information()
+        self.serie_inegi()
 
+    def test(self):
+        
 
-    def get_inpc_data(self):
-        global status # Global status for unit tests
-        response = requests.get(Inpc.url)
+    def serie_inegi(self):
+        global status # Global status for unitests
+        response = requests.get(url)
         status = response.status_code
         if status == 200:
             content = response.json()
@@ -72,7 +70,7 @@ class Inpc():
             # Si el estatus esta mal imprimir el Error en la consulta.
             print(status)
 
-    def print_last_value(self):
+    def print_intro(self):
         print("\n Calculadora de Inflacion V1. 17-Feb-21 \n")
         print("Ultimo Valor reportado por el INEGI: \n")
         print((df.iloc[[0], [0, 1, 2]]).to_string(index=False))
@@ -85,21 +83,21 @@ class Inpc():
 
     def calculate_inflation(self):
         self.df2 = df.loc[self.end_date:self.start_date]
-        self.start_value = self.df2["INPC"].values[-1]
-        self.end_value = self.df2["INPC"].values[0]
-        self.inflacion = ((self.end_value / self.start_value) - 1) * 100
-        self.inflacion_redondeada = round(self.inflacion, 2)
-        self.factor_ajuste = self.end_value / self.start_value
-        self.factor_ajuste_truncado = round(self.factor_ajuste, 4)
+        self.start_value = df2["INPC"].values[-1]
+        self.end_value = df2["INPC"].values[0]
+        self.inflacion = ((end_value / start_value) - 1) * 100
+        self.inflacion_redondeada = round(inflacion, 2)
+        self.factor_ajuste = end_value / start_value
+        self.factor_ajuste_truncado = round(factor_ajuste, 4)
     
     def print_information(self):
         print("\n")
         print(self.df2.to_string(index=False))
-        print("\nEl INPC Inicial del periodo es: " + str(self.start_value))
-        print("El INPC Final del periodo es:: " + str(self.end_value))
-        print("El Factor de ajuste es: " + str(self.factor_ajuste_truncado))
+        print("\nEl INPC Inicial del periodo es: " + str(start_value))
+        print("El INPC Final del periodo es:: " + str(end_value))
+        print("El Factor de ajuste es: " + str(factor_ajuste_truncado))
         print(("La inflacion del periodo fue de: "
-               + str(self.inflacion_redondeada)
+               + str(inflacion_redondeada)
                + "%\n"
                ))
 
