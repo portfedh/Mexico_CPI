@@ -105,6 +105,3 @@ class Inpc():
 
 if __name__ == '__main__':
     oInpc = Inpc()
-
-
-
