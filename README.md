@@ -1,4 +1,3 @@
-
 # Mexico Inflation Calculator
 
 ## What it does
@@ -24,11 +23,11 @@ To use this script, you must have previously installed python 3 and the followin
 - Requests
 
 You will also need a (free) API token from INEGI, which can be obtained here:
-[INEGI API KEY](http://en.www.inegi.org.mx/app/api/denue/v1/tokenVerify.aspx)
+[INEGI API KEY](https://www.inegi.org.mx/servicios/api_indicadores.html)
 
-Once you have the API token, paste it in the file named: ```api_key_blank.py```
+Once you have the API token, paste it in the file named: `api_key_blank.py`
 
-Rename the file to ```api_key.py```
+Rename the file to `api_key.py`
 
 You can then run the python script from terminal.
 

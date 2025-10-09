@@ -1,5 +1,5 @@
 # Programa para mostrar los valores del INPC de un periodo
-# y calcular la inflacion durante ese periodo.
+# y calcular la inflación durante ese periodo.
 # Autor: Pablo Cruz Lemini
 
 import api_key
@@ -11,7 +11,7 @@ locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
 class Inpc():
     # Variables
     token = api_key.token_inegi
-    inpc = "628194"  # Serie INPC Mensual
+    inpc = "910392"  # Serie INPC Mensual
     consulta = "false"  # Serie completa
     url = (
     "https://www.inegi.org.mx/app/api/indicadores/"
@@ -23,7 +23,9 @@ class Inpc():
     + token)
 
     def __init__(self):
-        self.get_inpc_data()
+        if not self.get_inpc_data():
+            print("\n El programa no puede continuar sin datos del INEGI.\n")
+            return
         self.print_last_value()
         self.get_dates()
         self.calculate_inflation()
@@ -32,6 +34,7 @@ class Inpc():
 
     def get_inpc_data(self):
         global status # Global status for unit tests
+        global df # Global dataframe
         response = requests.get(Inpc.url)
         status = response.status_code
         if status == 200:
@@ -39,7 +42,6 @@ class Inpc():
             data = content["Series"][0]["OBSERVATIONS"]
             # Se filtra el json
             # Se accesa el diccionario con los datos
-            global df
             # Hacemos que la variable df sea global para poder accesarla despues
             df = pd.DataFrame(data)
             # Creamos un dataframe con la informacion
@@ -66,16 +68,29 @@ class Inpc():
             # Reordenamos las columnas
             df.set_index("Fecha", inplace=True)
             # Volvemos la fecha la columna indice
-            return df
-            # Regresa el Dataframe
+            return True
+            # Regresa True si fue exitoso
         else:
             # Si el estatus esta mal imprimir el Error en la consulta.
-            print(status)
+            df = None
+            print(f"\n Error: No se pudo conectar con la API de INEGI")
+            print(f"   Codigo de estado HTTP: {status}")
+            if status == 401:
+                print("   -> Tu API key esta invalida o expirada")
+                print("   -> Obten una nueva en: http://en.www.inegi.org.mx/app/api/denue/v1/tokenVerify.aspx")
+            elif status == 403:
+                print("   -> Acceso prohibido - verifica tu API key")
+            elif status >= 500:
+                print("   -> El servidor de INEGI esta temporalmente fuera de servicio")
+            return False
 
     def print_last_value(self):
-        print("\n Calculadora de Inflacion V1. 17-Feb-21 \n")
+        print("\n Calculadora de Inflacion V1.1 09-Oct-25 \n")
         print("Ultimo Valor reportado por el INEGI: \n")
-        print((df.iloc[[0], [0, 1, 2]]).to_string(index=False))
+        if df is not None:
+            print((df.iloc[[0], [0, 1, 2]]).to_string(index=False))
+        else:
+            print("   (No hay datos disponibles)")
 
     def get_dates(self):
         print("\n Fecha Inicial de Cálculo yyyy-mm: ")
