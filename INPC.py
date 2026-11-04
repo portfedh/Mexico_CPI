@@ -1,12 +1,23 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = ["requests", "pandas", "numpy", "truststore"]
+# ///
 # Programa para mostrar los valores del INPC de un periodo
 # y calcular la inflación durante ese periodo.
 # Autor: Pablo Cruz Lemini
 
 import api_key
-import locale
 import requests
+import truststore
 import pandas as pd
-locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
+# INEGI sends an incomplete certificate chain; use the OS trust store so
+# requests can verify it (the bundled certifi store cannot).
+truststore.inject_into_ssl()
+
+# Spanish month names. A fixed list means the script does not depend on the
+# es_ES locale being installed on the machine (it is missing on many systems).
+MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+         "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
 class Inpc():
     # Variables
@@ -17,10 +28,11 @@ class Inpc():
     "https://www.inegi.org.mx/app/api/indicadores/"
     + "desarrolladores/jsonxml/INDICATOR/"
     + inpc
-    + "/es/0700/"
+    + "/es/00/"
     + consulta
-    + "/BIE/2.0/"
-    + token)
+    + "/BIE-BISE/2.0/"
+    + token
+    + "?type=json")
 
     def __init__(self):
         if not self.get_inpc_data():
@@ -35,7 +47,18 @@ class Inpc():
     def get_inpc_data(self):
         global status # Global status for unit tests
         global df # Global dataframe
-        response = requests.get(Inpc.url)
+        status = None  # Stays None if we never get an HTTP response
+        try:
+            # timeout: do not wait forever if INEGI does not answer.
+            response = requests.get(Inpc.url, timeout=30)
+        except requests.exceptions.RequestException as error:
+            # Print only the error type: the full message contains the URL,
+            # and the URL contains the API token.
+            df = None
+            print("\n Error: No se pudo conectar con la API de INEGI")
+            print(f"   Tipo de error: {type(error).__name__}")
+            print("   -> Revisa tu conexion a internet, VPN o proxy")
+            return False
         status = response.status_code
         if status == 200:
             content = response.json()
@@ -45,13 +68,12 @@ class Inpc():
             # Hacemos que la variable df sea global para poder accesarla despues
             df = pd.DataFrame(data)
             # Creamos un dataframe con la informacion
-            df.drop(columns=["OBS_EXCEPTION",
+            df = df.drop(columns=["OBS_EXCEPTION",
                             "OBS_STATUS",
                             "OBS_SOURCE",
                             "OBS_NOTE",
                             "COBER_GEO",
-                            ],
-                    inplace=True,)
+                            ])
             # Eliminiamos las columnas que no necesitamos
             df.columns = ["Fecha", "INPC"]
             # Renombramos las columnas a Fecha e INPC
@@ -61,12 +83,11 @@ class Inpc():
             # Volvemos las fechas a formato de fecha
             df["Año"] = pd.DatetimeIndex(df["Fecha"]).year
             # Creamos las columna de Año
-            df["Mes"] = (pd.DatetimeIndex(df["Fecha"])
-                        .month_name(locale="es_ES.UTF-8"))
+            df["Mes"] = df["Fecha"].dt.month.map(lambda m: MESES[m - 1])
             # Creamos las columna de Mes en español
             df = df.reindex(columns=["Fecha", "Año", "Mes", "INPC"])
             # Reordenamos las columnas
-            df.set_index("Fecha", inplace=True)
+            df = df.set_index("Fecha")
             # Volvemos la fecha la columna indice
             return True
             # Regresa True si fue exitoso
@@ -77,7 +98,7 @@ class Inpc():
             print(f"   Codigo de estado HTTP: {status}")
             if status == 401:
                 print("   -> Tu API key esta invalida o expirada")
-                print("   -> Obten una nueva en: http://en.www.inegi.org.mx/app/api/denue/v1/tokenVerify.aspx")
+                print("   -> Obten una nueva en: https://www.inegi.org.mx/servicios/api_indicadores.html")
             elif status == 403:
                 print("   -> Acceso prohibido - verifica tu API key")
             elif status >= 500:
@@ -85,18 +106,37 @@ class Inpc():
             return False
 
     def print_last_value(self):
-        print("\n Calculadora de Inflacion V1.1 09-Oct-25 \n")
+        print("\n Calculadora de Inflacion V1.2 04-Nov-26 \n")
         print("Ultimo Valor reportado por el INEGI: \n")
         if df is not None:
             print((df.iloc[[0], [0, 1, 2]]).to_string(index=False))
         else:
             print("   (No hay datos disponibles)")
 
+    def ask_date(self, prompt):
+        # Keep asking until the user types a valid yyyy-mm inside the data.
+        first, last = df.index.min(), df.index.max()
+        while True:
+            print(prompt)
+            text = input().strip()
+            try:
+                date = pd.to_datetime(text, format="%Y-%m")
+            except ValueError:
+                print(f"   Formato invalido: '{text}'. Usa yyyy-mm, por ejemplo 2024-01.")
+                continue
+            if not first <= date <= last:
+                print(f"   Fuera de rango. Datos disponibles: "
+                      f"{first:%Y-%m} a {last:%Y-%m}.")
+                continue
+            return date
+
     def get_dates(self):
-        print("\n Fecha Inicial de Cálculo yyyy-mm: ")
-        self.start_date = pd.to_datetime(input())
-        print("Fecha Final de Cálculo yyyy-mm: ")
-        self.end_date = pd.to_datetime(input())
+        while True:
+            self.start_date = self.ask_date("\n Fecha Inicial de Cálculo yyyy-mm: ")
+            self.end_date = self.ask_date("Fecha Final de Cálculo yyyy-mm: ")
+            if self.start_date <= self.end_date:
+                break
+            print("   La fecha inicial debe ser anterior o igual a la final.")
 
     def calculate_inflation(self):
         self.df2 = df.loc[self.end_date:self.start_date]

@@ -14,13 +14,10 @@ The program connects through an API to the National Institute of Statistics and 
 
 ## How to Install
 
-To use this script, you must have previously installed python 3 and the following python libraries:
-
-- Python 3
-- IPython
-- Pandas
-- Numpy
-- Requests
+You need [uv](https://docs.astral.sh/uv/) installed. It reads the dependencies
+(Python 3.13+, Requests, Pandas, NumPy, truststore) from the top of `INPC.py`
+and sets everything up automatically. There is no virtual environment or
+`pip install` step.
 
 You will also need a (free) API token from INEGI, which can be obtained here:
 [INEGI API KEY](https://www.inegi.org.mx/servicios/api_indicadores.html)
@@ -29,11 +26,22 @@ Once you have the API token, paste it in the file named: `api_key_blank.py`
 
 Rename the file to `api_key.py`
 
-You can then run the python script from terminal.
+Then run the script from the terminal:
+
+```bash
+uv run INPC.py
+```
+
+Tests (they call the live INEGI API):
+
+```bash
+uv run test_inpc.py -v
+uv run test_inflation_14m.py -v
+```
 
 ## How to Use
 
-When running the script, the terminal will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user in the format: yyy-mm
+When running the script, the terminal will automatically display the last value in Mexican Consumer Price Index (INPC) and will ask for two dates from the user in the format: yyyy-mm (invalid or out-of-range dates are asked again)
 
 The program will then retrieve the monthly index values during the period and calculate the inflation between the two dates.
 
